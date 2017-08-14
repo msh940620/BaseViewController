@@ -19,16 +19,14 @@
     [super viewDidLoad];
     
     self.navigationBar.translucent = NO;
-//    self.navigationController.navigationBar.barTintColor = [UIColor whiteColor];  
+//    self.navigationController.navigationBar.barTintColor = [UIColor whiteColor];
     self.navigationBar.barTintColor = COLOR_NAV;
 //    self.navigationBar.titleTextAttributes = NSDictionary(object: navTitleColor,forKey:NSForegroundColorAttributeName) as? [String : AnyObject]
 //    self.navigationBar.shadowImage = UIImage(named: "clear")
 //    self.navigationBar.setBackgroundImage(UIImage(named: "clear"), forBarMetrics: UIBarMetrics.Default)
-    [self.navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
-    [self.navigationBar setShadowImage:[UIImage new]];
+//    [self.navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
+//    [self.navigationBar setShadowImage:[UIImage new]];
     // Do any additional setup after loading the view.
-    
-        
 }
 
 - (instancetype)initWithRootViewController:(UIViewController *)rootViewController {
@@ -84,6 +82,12 @@
 
 }
 
+-(void)hideNav:(id)sender{
+
+    [self dismissViewControllerAnimated:YES completion:nil];
+
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -95,12 +99,10 @@
         UINavigationController *nav = viewControllerToPresent;
         nav.navigationBar.translucent = NO;
         nav.navigationBar.barTintColor = COLOR_NAV;
-        [nav.navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
-        [nav.navigationBar setShadowImage:[UIImage new]];
          UIFont *font = [UIFont systemFontOfSize:17];
         NSDictionary *textAttributes = @{
                                          NSFontAttributeName : font,
-                                         NSForegroundColorAttributeName : [UIColor whiteColor]
+                                         NSForegroundColorAttributeName : COLOR_NAV_TITLE
                                          };
         [nav.navigationBar setTitleTextAttributes:textAttributes];
     }

@@ -24,15 +24,15 @@
 -(UIView *)noneView{
     if(!_noneView){
         _noneView = [[CTMediator sharedInstance] CTMediator_noneViewWithTitle:@"网络错误"
-                                                                      noneDec:@"请重试"
+                                                                      noneDec:@"请检查网络后重试"
                                                                  noneBtnTitle:@"重试"
-                                                                        Image:@""
-                                                                    withWidth:80
-                                                                        img_y:70
+                                                                        Image:@"ic_network_emptydata"
+                                                                    withWidth:114
+                                                                   withHeight:90
+                                                                        img_y:120
                                                                        height:self.tableview.frame.size.height
                                                                         block:^{
                                                                             [self refresh_data];
-                                                                            _noneView.userInteractionEnabled = YES;
                                                                         }];
     }
     return _noneView;
@@ -41,7 +41,7 @@
 -(id)initWithStyle:(UITableViewStyle)style{
     self = [super initWithNibName:nil bundle:nil];
     if (self) {
-        self.showSeparator = NO;
+        self.showSeparator = YES;
         self.tableStyle = style;
         self.ifrespErr = NO;
         self.isInit = NO;
@@ -52,7 +52,7 @@
 -(id)init{
     self = [super init];
     if (self) {
-        self.showSeparator = NO;
+        self.showSeparator = YES;
         self.tableStyle = UITableViewStyleGrouped;
         self.ifrespErr = NO;
         self.isInit = NO;
@@ -106,6 +106,13 @@
     if(self.isInit){
         [self.tableview reloadData];
     }
+}
+
+- (NSMutableArray *)listData{
+    if(!_listData){
+        _listData = [NSMutableArray array];
+    }
+    return _listData;
 }
 
 - (void)addCustomRefresh:(MJRefreshComponentRefreshingBlock)refreshingBlock{
@@ -171,9 +178,9 @@
     self.tableview.mj_footer = _footer;
     
     self.tableview.needPlaceholder = @(1);
-
-        [self getData];
-
+    
+    [self getData];
+    
 }
 
 - (void)refresh_data{
@@ -184,106 +191,110 @@
             [self.tableview.mj_footer resetNoMoreData];
         }
         [self getData];
-
     }
-
+    
 }
 
 /**
  * 获取数据
  */
 - (void)getData{
-
+    
     if(_footer_action){
         _footer_action();
     }else{
         
-    NSMutableDictionary *paramDic = [[NSMutableDictionary alloc]init];
-    if ([self params]== nil) {
-        //传page
-        paramDic[@"currPage"] = [NSString stringWithFormat:@"%d",_next_page];
-        paramDic[@"pageSize"] = [NSString stringWithFormat:@"%d",TABLE_PAGE_SIZE];
-    }else{
-        //合并(page + params)
-        [paramDic setDictionary:[self params]];
-        paramDic[@"currPage"] = [NSString stringWithFormat:@"%d",_next_page];
-        paramDic[@"pageSize"] = [NSString stringWithFormat:@"%d",TABLE_PAGE_SIZE];
-        
-    }
-    [ServiceRequest loadWithMethodName:[self method] andHttpMethod:HttpMethodPost andParams:paramDic successed:^(id respDic, NSString *code, NSString *message) {
-        if(!_isInit){
-            _isInit = YES;
-        }
-        self.noneView.hidden = YES;
-        self.tableview.hidden = NO;
-        [self calculateListCount:respDic[@"listInfo"]];
-        if(_object_count < 10){
-            self.tableview.mj_footer = nil;
+        NSMutableDictionary *paramDic = [[NSMutableDictionary alloc]init];
+        if ([self params]== nil) {
+            //传page
+            paramDic[@"currentPage"] = [NSString stringWithFormat:@"%ld",(long)_next_page];
+            paramDic[@"pageSize"] = [NSString stringWithFormat:@"%d",TABLE_PAGE_SIZE];
         }else{
-            if(!self.tableview.mj_footer){
-                
-                _footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(getData)];
-                // 设置文字
-                [_footer setTitle:@"上拉加载更多" forState:MJRefreshStateIdle];
-                [_footer setTitle:@"松开加载更多" forState:MJRefreshStatePulling];
-                [_footer setTitle:@"加载中..." forState:MJRefreshStateRefreshing];
-                [_footer setTitle:@"没有更多了哦" forState:MJRefreshStateNoMoreData];
-                // 设置字体
-                _footer.stateLabel.font = FONT(15);
-                // 设置颜色
-                _footer.stateLabel.textColor = COLOR_TABLE_HEADER;
-                // 设置footer
-                self.tableview.mj_footer = _footer;
-                
+            //合并(page + params)
+            [paramDic setDictionary:[self params]];
+            paramDic[@"currentPage"] = [NSString stringWithFormat:@"%ld",(long)_next_page];
+            paramDic[@"pageSize"] = [NSString stringWithFormat:@"%d",TABLE_PAGE_SIZE];
+        }
+        [ServiceRequest loadWithMethodName:[self method] andHttpMethod:HttpMethodPost andParams:paramDic successed:^(id respDic, NSString *code, NSString *message) {
+            if(!_isInit){
+                _isInit = YES;
             }
-        }
-        NSArray * items;
-        items = [self parseResponse:respDic[@"list"]];
-        //        NSArray * items = [self parseResponse:respDic[@"workorderlist"]];
-        if (items && [items count]){
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if(_next_page == 2){
-                    _listData = [NSMutableArray array];
-                }
-                _listData = [[_listData arrayByAddingObjectsFromArray:items] mutableCopy];
-                [_tableview reloadData];
-            });
-        }
-        [CustomHud hiddenAllHudAfter:0];
-        _ifrespErr = NO;
-        
-        [self.tableview reloadData];
-    } failed:^(id respDic, NSString *code, NSString *message) {
-        if(!_isInit){
-            _isInit = YES;
-        }
-        [CustomHud hiddenAllHudAfter:0];
-        if(_object_count < 10){
-            self.tableview.mj_footer = nil;
-        }
-        if (self.tableview.mj_footer) {
-            if([code isEqualToString:NO_MORE_DATA]){
-                [self.tableview.mj_footer endRefreshingWithNoMoreData];
+            self.noneView.hidden = YES;
+            self.tableview.hidden = NO;
+            [self calculateListCount:respDic];
+            if(_object_count < 10){
+                self.tableview.mj_footer = nil;
             }else{
-                [self.tableview.mj_footer endRefreshing];
+                if(!self.tableview.mj_footer){
+                    
+                    _footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(getData)];
+                    // 设置文字
+                    [_footer setTitle:@"上拉加载更多" forState:MJRefreshStateIdle];
+                    [_footer setTitle:@"松开加载更多" forState:MJRefreshStatePulling];
+                    [_footer setTitle:@"加载中..." forState:MJRefreshStateRefreshing];
+                    [_footer setTitle:@"没有更多了哦" forState:MJRefreshStateNoMoreData];
+                    // 设置字体
+                    _footer.stateLabel.font = FONT(15);
+                    // 设置颜色
+                    _footer.stateLabel.textColor = COLOR_TABLE_HEADER;
+                    // 设置footer
+                    self.tableview.mj_footer = _footer;
+                    
+                }
             }
-        }
-        if (self.tableview.mj_header) {
-            [self.tableview.mj_header endRefreshing];
-        }
-        
-        _ifrespErr = YES;
-        if ([code isEqualToString:NO_INTERNET_ERR_CODE]){
-            self.object_count = 0;
-            self.list_count = 0;
-            self.next_page = 1;
-            self.tableview.hidden = YES;
-            [self.view addSubview:self.noneView];
-            self.noneView.hidden = NO;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSArray * items;
+                items = [self parseResponse:respDic[@"dataList"]];
+                //        NSArray * items = [self parseResponse:respDic[@"workorderlist"]];
+                if (items && [items count]){
+                    
+                    // 如果下一页为2 当前页则为1 需要对list重置
+                    if(_next_page == 2){
+                        _listData = [NSMutableArray array];
+                    }
+                    _listData = [[_listData arrayByAddingObjectsFromArray:items] mutableCopy];
+                }else{
+                    if(!_listData || _next_page == 2){
+                        _listData = [NSMutableArray array];
+                    }
+                }
+                [CustomHud hiddenAllHudAfter:0];
+                _ifrespErr = NO;
+                
+                [self.tableview reloadData];
+            });
+        } failed:^(id respDic, NSString *code, NSString *message) {
+            if(!_isInit){
+                _isInit = YES;
+            }
+            [CustomHud hiddenAllHudAfter:0];
+            if(_object_count < 10){
+                self.tableview.mj_footer = nil;
+            }
+            if (self.tableview.mj_footer) {
+                if([code isEqualToString:NO_MORE_DATA]){
+                    [self.tableview.mj_footer endRefreshingWithNoMoreData];
+                }else{
+                    [self.tableview.mj_footer endRefreshing];
+                }
+            }
+            if (self.tableview.mj_header) {
+                [self.tableview.mj_header endRefreshing];
+            }
             
-        }
-        [_tableview reloadData];
-    }];
+            _ifrespErr = YES;
+            if ([code isEqualToString:NO_INTERNET_ERR_CODE]){
+                self.object_count = 0;
+                self.list_count = 0;
+                self.next_page = 1;
+                self.tableview.hidden = YES;
+                [self.view addSubview:self.noneView];
+                self.noneView.hidden = NO;
+                
+            }
+            [self textStateHUD:message];
+            [_tableview reloadData];
+        }];
     }
 }
 
@@ -337,7 +348,7 @@
 
 -(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath{
     if (tableView == self.tableview) {
-        if (_next_page -1 < _list_count && nil != self.method && _object_count > 0) {
+        if (_next_page -1 < _list_count && nil != self.method && _object_count > 0 && !_ifrespErr) {
             if (indexPath.section == self.listData.count - 1 || indexPath.row ==self.listData.count - 1) {
                 [self getData];
             }
@@ -348,9 +359,9 @@
 //计算总个数
 - (void)calculateListCount:(NSDictionary *)respDic{
     
-    _list_count = [respDic[@"pageNum"] integerValue];
-    _next_page = [respDic[@"currPage"] integerValue] + 1;
-    _object_count = [respDic[@"recordNum"] integerValue];
+    _list_count = [respDic[@"totalpages"] integerValue];
+    _next_page = [respDic[@"currentpageNo"] integerValue] + 1;
+    _object_count = [respDic[@"returntotalcount"] integerValue];
     
     if (_next_page > _list_count) {
         if (self.tableview.mj_footer) {

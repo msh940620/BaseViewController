@@ -10,4 +10,6 @@
 
 @interface BaseNavgationController : UINavigationController
 
+-(void)hideNav:(id)sender;
+
 @end

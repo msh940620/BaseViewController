@@ -23,13 +23,10 @@ typedef void (^refresh_action)();//用typedef定义一个block类型
 @property(nonatomic) BOOL ifrespErr;
 
 @property (nonatomic, strong) NSMutableArray *listData;
-@property (nonatomic, strong) UIView *errView;         //错误视图
 
 @property (nonatomic,assign) NSInteger object_count;
 
 @property (nonatomic,assign) BOOL isInit; //是否已经初始化
-
-@property(nonatomic,copy) NSString *errMessage;
 
 @property(nonatomic,strong) MJRefreshAutoNormalFooter *footer;
 

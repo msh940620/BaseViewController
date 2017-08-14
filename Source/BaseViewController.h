@@ -7,21 +7,20 @@
 //
 #define NAV_BACK_IMG_NAME @"back"
 
-#define COLOR_BACKGROUND    RGBA(241, 241, 241, 1)   //底层View背景颜色 灰色
-#define COLOR_NAV_TITLE     [UIColor whiteColor]  //nav标题颜色
+#define COLOR_BACKGROUND    RGBA(235, 235, 235, 1)   //底层View背景颜色 灰色
+#define COLOR_NAV_TITLE     RGB(32,32,32)//nav标题颜色
 #define COLOR_TABLE_HEADER   RGBA(41, 46, 49,1)
-#define COLOR_NAV          RGBA(34,32,28,1) //导航栏颜色
-#define COLOR_NAV_BACK      [UIColor whiteColor]  //返回ITEM 按钮颜色
-#define COLOR_ITEM          [UIColor whiteColor]  //ITEM 按钮颜色
-#define COLOR_THEME         RGB(153,108,0)   //TODO  主题颜色 修改为工程需要的
+#define COLOR_NAV          RGB(248,248,248) //导航栏颜色
+#define COLOR_NAV_BACK      COLOR_THEME  //返回ITEM 按钮颜色
+#define COLOR_ITEM          COLOR_THEME  //ITEM 按钮颜色
+#define COLOR_THEME         RGB(44,139,255)   //TODO  主题颜色 修改为工程需要的
 #define FONT(RatioFont)     [UIFont systemFontOfSize:RatioFont]
 
 #define DELAY 0.7
 
 #define ANIMATION_DELAY 0.3
 
-#define COLOR_DISABLE_BG    RGB(222,222,222)
-#define COLOR_DISABLE       RGB(135,135,135)
+#define COLOR_DISABLE_BG    RGB(204, 204, 204)
 
 #define COLOR_BORDER        RGB(242,242,242).CGColor   //TODO  控件外框颜色 修改为工程需要的
 
@@ -31,7 +30,6 @@
 #define COLOR_TITLE         RGB(41,46,49)
 #define COLOR_LINE          RGBA(238, 238, 238, 1)
 #define COLOR_RED           RGB(235,63,54)
-#define COLOR_BLUE          RGB(82,166,255)
 #define COLOR_SEPARATE      RGB(186,206,225)  //  分割线、边框颜色
 
 #define RGBA(r,g,b,a)     [UIColor colorWithRed:(r)/255.0f green:(g)/255.0f blue:(b)/255.0f alpha:a]
@@ -78,8 +76,14 @@
 
 @property (nonatomic,strong) UILabel *titleLabel;
 
-@property (nonatomic, strong) BaseNavgationController    *navigationController;
+@property (nonatomic, strong) BaseNavgationController   *navigationController;
 
 - (void)textStateHUD:(NSString *)text;
+
+- (void)textStateHUDNoHide:(NSString *)text;
+
+-(void)imageStateHUD:(NSString *)imageName title:(NSString *)title;
+
+-(void)hideProgress;
 
 @end
