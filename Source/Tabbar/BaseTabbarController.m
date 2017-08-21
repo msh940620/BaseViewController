@@ -65,7 +65,10 @@
     tabBarItem = [[UITabBarItem alloc] initWithTitle:title
                                                image:[self renderImageWithName:image]
                                        selectedImage:[self renderImageWithName:selectedImage]];
-
+    if(title == nil || [title isEqualToString:@""]){
+    
+    tabBarItem.imageInsets = UIEdgeInsetsMake(5.0, 0, -5.0, 0);
+    }
     //改变tabBar字体颜色
     [tabBarItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:titleColor,NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
     

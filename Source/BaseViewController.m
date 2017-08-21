@@ -61,7 +61,7 @@
     _titleLabel.adjustsFontSizeToFitWidth = YES;
     _titleLabel.textColor = COLOR_NAV_TITLE;
     _titleLabel.textAlignment = NSTextAlignmentCenter;
-    _titleLabel.font = [UIFont systemFontOfSize:17];
+    _titleLabel.font = [UIFont fontWithName:@"PingFang-SC-Medium" size:18]  != nil ? [UIFont fontWithName:@"PingFang-SC-Medium" size:18] : FONT(18);
     self.navigationItem.titleView = _titleLabel;
 }
 -(void)viewWillDisappear:(BOOL)animated{

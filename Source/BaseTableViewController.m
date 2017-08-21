@@ -127,6 +127,8 @@
     header.stateLabel.hidden = YES;
     // 设置字体
     header.stateLabel.font = [UIFont systemFontOfSize:15];
+    // 菊花样式
+    header.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
     // 设置颜色
     header.stateLabel.textColor = COLOR_TABLE_HEADER;
     // 设置刷新控件
@@ -326,7 +328,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
-    return 8;
+    return 10;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section

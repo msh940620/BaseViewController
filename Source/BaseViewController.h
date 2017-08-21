@@ -7,13 +7,13 @@
 //
 #define NAV_BACK_IMG_NAME @"back"
 
-#define COLOR_BACKGROUND    RGBA(235, 235, 235, 1)   //底层View背景颜色 灰色
-#define COLOR_NAV_TITLE     RGB(32,32,32)//nav标题颜色
-#define COLOR_TABLE_HEADER   RGBA(41, 46, 49,1)
-#define COLOR_NAV          RGB(248,248,248) //导航栏颜色
+#define COLOR_BACKGROUND    COLOR(@"#292929", 1)   //底层View背景颜色 灰色
+#define COLOR_NAV_TITLE     COLOR_THEME//nav标题颜色
+#define COLOR_TABLE_HEADER   RGBA(255, 255, 255,1)
+#define COLOR_NAV          COLOR(@"#1a1a1a",1) //导航栏颜色
 #define COLOR_NAV_BACK      COLOR_THEME  //返回ITEM 按钮颜色
 #define COLOR_ITEM          COLOR_THEME  //ITEM 按钮颜色
-#define COLOR_THEME         RGB(44,139,255)   //TODO  主题颜色 修改为工程需要的
+#define COLOR_THEME         COLOR(@"#ffffff",1)   //TODO  主题颜色 修改为工程需要的
 #define FONT(RatioFont)     [UIFont systemFontOfSize:RatioFont]
 
 #define DELAY 0.7
@@ -34,6 +34,8 @@
 
 #define RGBA(r,g,b,a)     [UIColor colorWithRed:(r)/255.0f green:(g)/255.0f blue:(b)/255.0f alpha:a]
 #define RGB(r,g,b)          RGBA(r,g,b,1)
+
+#define COLOR(color,alpha) [Tools colorWithHexString:color withAlpha:alpha]
 
 #define ScreenW    [[UIScreen mainScreen] bounds].size.width
 #define ScreenH    [[UIScreen mainScreen] bounds].size.height
