@@ -7,16 +7,14 @@
 //
 #define NAV_BACK_IMG_NAME @"back"
 
-#define COLOR_BACKGROUND    COLOR(@"#292929", 1)   //底层View背景颜色 灰色
+#define COLOR_BACKGROUND    RGB(240, 240, 240)   //底层View背景颜色
 #define COLOR_NAV_TITLE     COLOR_THEME//nav标题颜色
-#define COLOR_TABLE_HEADER   RGBA(255, 255, 255,1)
+#define COLOR_TABLE_HEADER   RGBA(128, 128, 128,1)
 #define COLOR_NAV          COLOR(@"#1a1a1a",1) //导航栏颜色
 #define COLOR_NAV_BACK      COLOR_THEME  //返回ITEM 按钮颜色
 #define COLOR_ITEM          COLOR_THEME  //ITEM 按钮颜色
-#define COLOR_THEME         COLOR(@"#ffffff",1)   //TODO  主题颜色 修改为工程需要的
+#define COLOR_THEME         RGB(246,203,173)   //TODO  主题颜色 修改为工程需要的
 #define FONT(RatioFont)     [UIFont systemFontOfSize:RatioFont]
-
-#define DELAY 0.7
 
 #define ANIMATION_DELAY 0.3
 
@@ -27,7 +25,6 @@
 #define COLOR_TITLE_DISABLE RGB(180,180,180)
 
 #define COLOR_TOOL_ITEM     RGB(64,64,64)
-#define COLOR_TITLE         RGB(41,46,49)
 #define COLOR_LINE          RGBA(238, 238, 238, 1)
 #define COLOR_RED           RGB(235,63,54)
 #define COLOR_SEPARATE      RGB(186,206,225)  //  分割线、边框颜色
@@ -45,11 +42,13 @@
 /**
  *  系统默认导航栏(44)加状态栏(20)高度
  */
-#define NAV_HEIGHT   64
+#define NAV_HEIGHT  (ScreenH == 812 ?  88 : 64)
+
+#define STATUS_HEIGHT (ScreenH == 812 ?  44 : 20)
 /**
  *  系统默认底部标签栏高度
  */
-#define TAB_HEIGHT   49
+#define TAB_HEIGHT  (ScreenH == 812 ? 83 : 49)
 /**
  * 分页数据每页条数
  */
@@ -87,5 +86,7 @@
 -(void)imageStateHUD:(NSString *)imageName title:(NSString *)title;
 
 -(void)hideProgress;
+
+- (BOOL)fd_prefersNavigationBarHidden;
 
 @end

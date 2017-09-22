@@ -8,10 +8,12 @@
 //
 
 
+#import <CommonCell/CommonCellSetting.h>
 #import "BaseViewController.h"
 #import "CTMediator.h"
 #import "CTMediator+CTMediatorModuleBaseVCActions.h"
 #import "UIViewController+ChooseResources.h"
+#import <Masonry/Masonry.h>
 
 @interface BaseViewController ()<MBProgressHUDDelegate,UIAlertViewDelegate>{
     
@@ -37,7 +39,7 @@
     [super viewDidLoad];
     [self.navigationItem setHidesBackButton:YES animated:YES];
     [self createTitleLabel];
-    
+    self.titleLabel.text = self.title;
     self.view.autoresizesSubviews = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     
 }
@@ -62,7 +64,11 @@
     _titleLabel.textColor = COLOR_NAV_TITLE;
     _titleLabel.textAlignment = NSTextAlignmentCenter;
     _titleLabel.font = [UIFont fontWithName:@"PingFang-SC-Medium" size:18]  != nil ? [UIFont fontWithName:@"PingFang-SC-Medium" size:18] : FONT(18);
+#ifdef __IPHONE_11_0
+    _titleLabel.translatesAutoresizingMaskIntoConstraints = false;
+#endif
     self.navigationItem.titleView = _titleLabel;
+    
 }
 -(void)viewWillDisappear:(BOOL)animated{
     
@@ -121,9 +127,9 @@
 }
 
 -(void)hideProgress{
-    
-    [progressView hideAnimated:NO];
-
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [progressView hideAnimated:NO];
+    });
 }
 
 -(void)imageStateHUD:(NSString *)imageName title:(NSString *)title{
@@ -242,6 +248,9 @@
     }
 }
 
+- (BOOL)fd_prefersNavigationBarHidden {
+    return NO;
+}
 
 
 @end

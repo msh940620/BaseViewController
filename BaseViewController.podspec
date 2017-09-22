@@ -141,4 +141,5 @@ Pod::Spec.new do |s|
   s.dependency "MBProgressHUD"
   s.dependency "RequestDataManager"
   s.dependency "CustomHud"
+  s.dependency "UITableView+FDTemplateLayoutCell"
 end

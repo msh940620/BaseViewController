@@ -41,7 +41,7 @@
 -(id)initWithStyle:(UITableViewStyle)style{
     self = [super initWithNibName:nil bundle:nil];
     if (self) {
-        self.showSeparator = YES;
+        self.showSeparator = NO;
         self.tableStyle = style;
         self.ifrespErr = NO;
         self.isInit = NO;
@@ -52,10 +52,11 @@
 -(id)init{
     self = [super init];
     if (self) {
-        self.showSeparator = YES;
+        self.showSeparator = NO;
         self.tableStyle = UITableViewStyleGrouped;
         self.ifrespErr = NO;
         self.isInit = NO;
+        self.autoRefresh = YES;
     }
     return self;
 }
@@ -66,13 +67,13 @@
     //tableView 基本初始化
     if (!self.tableview) {
         CGRect vFrame = CGRectMake(0,0,ScreenW,ScreenH);
-        vFrame.size.height = self.navigationController.navigationBarHidden?vFrame.size.height:vFrame.size.height-NAV_HEIGHT;
+        vFrame.size.height = self.fd_prefersNavigationBarHidden ?vFrame.size.height:vFrame.size.height-NAV_HEIGHT;
         if(!self.hidesBottomBarWhenPushed){
             vFrame.size.height = self.tabBarController.tabBar.hidden?vFrame.size.height:vFrame.size.height-TAB_HEIGHT;
         }
         self.tableview = [[UITableView alloc] initWithFrame:vFrame style:self.tableStyle];
         self.tableview.rowHeight = UITableViewAutomaticDimension;
-        self.tableview.estimatedRowHeight = 44;
+        self.tableview.estimatedRowHeight = 46;
         self.tableview.dataSource = self;
         self.tableview.delegate = self;
         self.tableview.backgroundColor = COLOR_BACKGROUND;
@@ -84,6 +85,11 @@
          * 去除页面上边距
          */
         self.edgesForExtendedLayout = UIRectEdgeBottom;
+#ifdef __IPHONE_11_0
+        if ([self.tableview respondsToSelector:@selector(setContentInsetAdjustmentBehavior:)]) {
+            self.tableview.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+        }
+#endif
     }
     //不显示cell分割线
     if (!self.showSeparator) {
@@ -103,8 +109,8 @@
 
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
-    if(self.isInit){
-        [self.tableview reloadData];
+    if ([self method] !=nil && self.isInit && self.autoRefresh){
+        [self refresh_data];
     }
 }
 
@@ -209,15 +215,15 @@
         NSMutableDictionary *paramDic = [[NSMutableDictionary alloc]init];
         if ([self params]== nil) {
             //传page
-            paramDic[@"currentPage"] = [NSString stringWithFormat:@"%ld",(long)_next_page];
-            paramDic[@"pageSize"] = [NSString stringWithFormat:@"%d",TABLE_PAGE_SIZE];
+            paramDic[@"page"] = [NSString stringWithFormat:@"%ld",(long)_next_page];
+            paramDic[@"limit"] = [NSString stringWithFormat:@"%d",TABLE_PAGE_SIZE];
         }else{
             //合并(page + params)
             [paramDic setDictionary:[self params]];
-            paramDic[@"currentPage"] = [NSString stringWithFormat:@"%ld",(long)_next_page];
-            paramDic[@"pageSize"] = [NSString stringWithFormat:@"%d",TABLE_PAGE_SIZE];
+            paramDic[@"page"] = [NSString stringWithFormat:@"%ld",(long)_next_page];
+            paramDic[@"limit"] = [NSString stringWithFormat:@"%d",TABLE_PAGE_SIZE];
         }
-        [ServiceRequest loadWithMethodName:[self method] andHttpMethod:HttpMethodPost andParams:paramDic successed:^(id respDic, NSString *code, NSString *message) {
+        [ServiceRequest loadSimpleWithMethodName:[self method] andParams:paramDic andHttpMethod:HttpMethodPost successed:^(id respDic, NSInteger code, NSString *message) {
             if(!_isInit){
                 _isInit = YES;
             }
@@ -246,7 +252,7 @@
             }
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSArray * items;
-                items = [self parseResponse:respDic[@"dataList"]];
+                items = [self parseResponse:respDic[@"list"]];
                 //        NSArray * items = [self parseResponse:respDic[@"workorderlist"]];
                 if (items && [items count]){
                     
@@ -265,7 +271,7 @@
                 
                 [self.tableview reloadData];
             });
-        } failed:^(id respDic, NSString *code, NSString *message) {
+        } failed:^(id respDic, NSInteger code, NSString *message) {
             if(!_isInit){
                 _isInit = YES;
             }
@@ -274,18 +280,14 @@
                 self.tableview.mj_footer = nil;
             }
             if (self.tableview.mj_footer) {
-                if([code isEqualToString:NO_MORE_DATA]){
-                    [self.tableview.mj_footer endRefreshingWithNoMoreData];
-                }else{
-                    [self.tableview.mj_footer endRefreshing];
-                }
+                [self.tableview.mj_footer endRefreshing];
             }
             if (self.tableview.mj_header) {
                 [self.tableview.mj_header endRefreshing];
             }
             
             _ifrespErr = YES;
-            if ([code isEqualToString:NO_INTERNET_ERR_CODE]){
+            if (code == NO_INTERNET_ERR_CODE){
                 self.object_count = 0;
                 self.list_count = 0;
                 self.next_page = 1;
@@ -336,6 +338,14 @@
     return 0;
 }
 
+- (nullable UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    return [[UIView alloc] initWithFrame:CGRectZero];
+}
+
+- (nullable UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+    return [[UIView alloc] initWithFrame:CGRectZero];
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString * LOAD_MORE_CELL = @"LOAD_MORE_CELL_IDENTIFITY";
@@ -360,11 +370,12 @@
 
 //计算总个数
 - (void)calculateListCount:(NSDictionary *)respDic{
-    
-    _list_count = [respDic[@"totalpages"] integerValue];
-    _next_page = [respDic[@"currentpageNo"] integerValue] + 1;
-    _object_count = [respDic[@"returntotalcount"] integerValue];
-    
+
+    _next_page++;
+    _object_count = [respDic[@"list_num"] integerValue];
+    //如果有余数 则 +1
+    _list_count = _object_count/TABLE_PAGE_SIZE  + (_object_count % TABLE_PAGE_SIZE > 0 ? 1 : 0);
+
     if (_next_page > _list_count) {
         if (self.tableview.mj_footer) {
             [self.tableview.mj_footer endRefreshingWithNoMoreData];
@@ -403,7 +414,5 @@
 - (void)set_custom_footer_action:(refresh_action)brock{
     self.footer_action = brock;
 }
-
-
 
 @end

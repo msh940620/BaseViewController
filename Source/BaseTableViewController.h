@@ -32,6 +32,8 @@ typedef void (^refresh_action)();//用typedef定义一个block类型
 
 @property (nonatomic, strong) refresh_action footer_action;
 
+@property  (nonatomic, assign) BOOL autoRefresh;
+
 /** 分页需要重载的方法 -- 方法名*/
 - (NSString *)method;
 /** 分页需要重载的方法 -- 参数*/
