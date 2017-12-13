@@ -65,6 +65,18 @@
 //define this constant if you want to enable auto-boxing for default syntax
 #define MAS_SHORTHAND_GLOBALS
 
+#define  adjustsScrollViewInsets_NO(scrollView,vc)\
+do { \
+_Pragma("clang diagnostic push") \
+_Pragma("clang diagnostic ignored \"-Warc-performSelector-leaks\"") \
+if ([UIScrollView instancesRespondToSelector:NSSelectorFromString(@"setContentInsetAdjustmentBehavior:")]) {\
+[scrollView   performSelector:NSSelectorFromString(@"setContentInsetAdjustmentBehavior:") withObject:@(2)];\
+} else {\
+vc.automaticallyAdjustsScrollViewInsets = NO;\
+}\
+_Pragma("clang diagnostic pop") \
+} while (0)
+
 #import "ServiceRequest.h"
 #import "BaseNavgationController.h"
 #import "Tools.h"
@@ -75,7 +87,7 @@
 
 @interface BaseViewController : UIViewController
 
-@property (nonatomic,strong) UILabel *titleLabel;
+@property (nonatomic, weak) UILabel *titleLabel;
 
 @property (nonatomic, strong) BaseNavgationController   *navigationController;
 

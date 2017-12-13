@@ -13,16 +13,28 @@
 #import "CTMediator.h"
 #import "CTMediator+CTMediatorModuleBaseVCActions.h"
 #import "UIViewController+ChooseResources.h"
+#import "CommonUserInfo.h"
+#import "NavTitleView.h"
 #import <Masonry/Masonry.h>
 
 @interface BaseViewController ()<MBProgressHUDDelegate,UIAlertViewDelegate>{
     
     MBProgressHUD *progressView;
+
 }
+
+@property  (nonatomic, strong)  NavTitleView *navTitleView;
 
 @end
 
 @implementation BaseViewController
+
+- (NavTitleView *)navTitleView {
+    if(!_navTitleView){
+        _navTitleView = [[NavTitleView alloc] init];
+    }
+    return _navTitleView;
+}
 
 - (void)loadView
 {
@@ -52,23 +64,37 @@
 
 - (void)setTitle:(NSString *)title {
     [super setTitle:title];
-    _titleLabel.text = title;
+    if(iOS10Later){
+            _titleLabel.text = title;
+    }else{
+        self.navigationItem.title = title;
+    }
+
 }
 
 - (void)createTitleLabel {
     
     //Create custom label for titleView
-    _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0,0, 90, 40)];
-    _titleLabel.backgroundColor = [UIColor clearColor];
-    _titleLabel.adjustsFontSizeToFitWidth = YES;
-    _titleLabel.textColor = COLOR_NAV_TITLE;
-    _titleLabel.textAlignment = NSTextAlignmentCenter;
-    _titleLabel.font = [UIFont fontWithName:@"PingFang-SC-Medium" size:18]  != nil ? [UIFont fontWithName:@"PingFang-SC-Medium" size:18] : FONT(18);
-#ifdef __IPHONE_11_0
-    _titleLabel.translatesAutoresizingMaskIntoConstraints = false;
-#endif
-    self.navigationItem.titleView = _titleLabel;
-    
+
+//    _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(20,0, 90, 40)];
+//    _titleLabel.backgroundColor = [UIColor clearColor];
+//    _titleLabel.adjustsFontSizeToFitWidth = YES;
+//    _titleLabel.textColor = COLOR_NAV_TITLE;
+//    _titleLabel.textAlignment = NSTextAlignmentCenter;
+//    _titleLabel.font = [UIFont fontWithName:@"PingFang-SC-Medium" size:18]  != nil ? [UIFont fontWithName:@"PingFang-SC-Medium" size:18] : FONT(18);
+////    _titleLabel.autoresizingMask = (UIViewAutoresizingFlexibleLeftMargin |
+////                                                 UIViewAutoresizingFlexibleRightMargin |
+////                                                 UIViewAutoresizingFlexibleTopMargin |
+////                                                 UIViewAutoresizingFlexibleBottomMargin);
+//#ifdef __IPHONE_11_0
+//    _titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+//#endif
+//    if(iOS10Later){
+    self.navigationItem.titleView = self.navTitleView;
+    _titleLabel = self.navTitleView.titleLabel;
+    self.navTitleView.intrinsicContentSize = CGSizeMake(ScreenW - 90, 40);
+//    }
+
 }
 -(void)viewWillDisappear:(BOOL)animated{
     
@@ -89,6 +115,7 @@
         progressView = [[MBProgressHUD alloc] initWithView:self.view];
         progressView.delegate = self;
     }
+            dispatch_async(dispatch_get_main_queue(), ^{
     [self.view addSubview:progressView];
     progressView.mode = MBProgressHUDModeText;
     progressView.detailsLabel.text = text;
@@ -96,6 +123,7 @@
     //stateHud.labelFont = [UIFont systemFontOfSize:13.0f];
     [progressView showAnimated:YES];
     [progressView hideAnimated:YES afterDelay:1.5];
+                   });
 }
 - (void)textStateHUD:(NSString *)text afterDelay:(NSTimeInterval)delay
 {
@@ -103,6 +131,7 @@
         progressView = [[MBProgressHUD alloc] initWithView:self.view];
         progressView.delegate = self;
     }
+        dispatch_async(dispatch_get_main_queue(), ^{
     [self.view addSubview:progressView];
     progressView.mode = MBProgressHUDModeText;
     progressView.detailsLabel.text = text;
@@ -110,6 +139,7 @@
     //stateHud.labelFont = [UIFont systemFontOfSize:13.0f];
     [progressView showAnimated:YES];
     [progressView hideAnimated:YES afterDelay:delay];
+               });
 }
 
 - (void)textStateHUDNoHide:(NSString *)text
@@ -118,12 +148,14 @@
         progressView = [[MBProgressHUD alloc] initWithView:self.view];
         progressView.delegate = self;
     }
+    dispatch_async(dispatch_get_main_queue(), ^{
     [self.view addSubview:progressView];
-    progressView.mode = MBProgressHUDModeText;
+    progressView.mode = MBProgressHUDModeIndeterminate;
     progressView.detailsLabel.text = text;
     progressView.detailsLabel.font = [UIFont systemFontOfSize:13.0f];
     //stateHud.labelFont = [UIFont systemFontOfSize:13.0f];
     [progressView showAnimated:YES];
+         });
 }
 
 -(void)hideProgress{
@@ -138,6 +170,7 @@
         progressView = [[MBProgressHUD alloc] initWithView:self.view];
         progressView.delegate = self;
     }
+    dispatch_async(dispatch_get_main_queue(), ^{
     [self.view addSubview:progressView];
     progressView.mode = MBProgressHUDModeCustomView;
     UIImage *image = [UIImage imageNamed:imageName];
@@ -148,6 +181,7 @@
     //stateHud.labelFont = [UIFont systemFontOfSize:13.0f];
     [progressView showAnimated:YES];
     [progressView hideAnimated:YES afterDelay:1.5];
+            });
 }
 - (void)didReceiveMemoryWarning
 {
@@ -163,11 +197,12 @@
     NSUserDefaults *defaults = (NSUserDefaults *)[notification object];
     // Do something with it
     if(nil != [defaults objectForKey:@"token"]){
-        if([[defaults objectForKey:@"token"] isEqualToString:@"logOut"]){
+        if([[CommonUserInfo sharedInstance] isLogin] || [Tools isEmpty:[CommonUserInfo sharedInstance].token]){
             return;
         }
         if([[defaults objectForKey:@"token"] isEqualToString:@"otherLog"]){
             [[NSNotificationCenter  defaultCenter] removeObserver:self name:NSUserDefaultsDidChangeNotification object:nil];
+            [[CommonUserInfo sharedInstance] logOut];
             UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"" message:@"您的账号已在其他地方登录，请重新登录" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil];
             alertView.tag = 10086;
             [alertView show];

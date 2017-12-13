@@ -96,7 +96,7 @@
 - (void)presentViewController:(UIViewController *)viewControllerToPresent animated:(BOOL)flag completion:(void (^)(void))completion{
     
     if([viewControllerToPresent isKindOfClass:[UINavigationController class]]){
-        UINavigationController *nav = viewControllerToPresent;
+        UINavigationController *nav = (UINavigationController *)viewControllerToPresent;
         nav.navigationBar.translucent = NO;
         nav.navigationBar.barTintColor = COLOR_NAV;
          UIFont *font = [UIFont systemFontOfSize:17];

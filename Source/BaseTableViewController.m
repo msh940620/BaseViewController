@@ -27,8 +27,8 @@
                                                                       noneDec:@"请检查网络后重试"
                                                                  noneBtnTitle:@"重试"
                                                                         Image:@"ic_network_emptydata"
-                                                                    withWidth:114
-                                                                   withHeight:90
+                                                                    withWidth:55
+                                                                   withHeight:48
                                                                         img_y:120
                                                                        height:self.tableview.frame.size.height
                                                                         block:^{
@@ -122,7 +122,7 @@
 }
 
 - (void)addCustomRefresh:(MJRefreshComponentRefreshingBlock)refreshingBlock{
-    
+
     MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingBlock:refreshingBlock];
     // 设置文字
     //    [header setTitle:@"下拉可以刷新了" forState:MJRefreshStateIdle];
@@ -134,9 +134,9 @@
     // 设置字体
     header.stateLabel.font = [UIFont systemFontOfSize:15];
     // 菊花样式
-    header.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
+//    header.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
     // 设置颜色
-    header.stateLabel.textColor = COLOR_TABLE_HEADER;
+//    header.stateLabel.textColor = COLOR_TABLE_HEADER;
     // 设置刷新控件
     self.tableview.mj_header = header;
 }
@@ -185,8 +185,6 @@
     // 设置footer
     self.tableview.mj_footer = _footer;
     
-    self.tableview.needPlaceholder = @(1);
-    
     [self getData];
     
 }
@@ -226,6 +224,7 @@
         [ServiceRequest loadSimpleWithMethodName:[self method] andParams:paramDic andHttpMethod:HttpMethodPost successed:^(id respDic, NSInteger code, NSString *message) {
             if(!_isInit){
                 _isInit = YES;
+                _tableview.needPlaceholder = @(1);
             }
             self.noneView.hidden = YES;
             self.tableview.hidden = NO;
@@ -240,7 +239,6 @@
                     [_footer setTitle:@"上拉加载更多" forState:MJRefreshStateIdle];
                     [_footer setTitle:@"松开加载更多" forState:MJRefreshStatePulling];
                     [_footer setTitle:@"加载中..." forState:MJRefreshStateRefreshing];
-                    [_footer setTitle:@"没有更多了哦" forState:MJRefreshStateNoMoreData];
                     // 设置字体
                     _footer.stateLabel.font = FONT(15);
                     // 设置颜色
@@ -249,7 +247,9 @@
                     self.tableview.mj_footer = _footer;
                     
                 }
+              [_footer setTitle:@"没有更多了哦" forState:MJRefreshStateNoMoreData];
             }
+            
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSArray * items;
                 items = [self parseResponse:respDic[@"list"]];
@@ -295,6 +295,10 @@
                 [self.view addSubview:self.noneView];
                 self.noneView.hidden = NO;
                 
+            }
+            if(code == -2028){
+                [self.tableview.mj_footer endRefreshingWithNoMoreData];
+                [_footer setTitle:message forState:MJRefreshStateNoMoreData];
             }
             [self textStateHUD:message];
             [_tableview reloadData];
@@ -371,7 +375,7 @@
 //计算总个数
 - (void)calculateListCount:(NSDictionary *)respDic{
 
-    _next_page++;
+    _next_page = [respDic[@"page"] integerValue] + 1;
     _object_count = [respDic[@"list_num"] integerValue];
     //如果有余数 则 +1
     _list_count = _object_count/TABLE_PAGE_SIZE  + (_object_count % TABLE_PAGE_SIZE > 0 ? 1 : 0);

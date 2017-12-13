@@ -10,7 +10,7 @@
 #import "MJRefresh.h"
 #import "UITableView+Placeholder.h"
 
-typedef void (^refresh_action)();//用typedef定义一个block类型
+typedef void (^refresh_action)(void);//用typedef定义一个block类型
 
 @interface BaseTableViewController : BaseViewController <UITableViewDataSource , UITableViewDelegate>
 
