@@ -64,36 +64,13 @@
 
 - (void)setTitle:(NSString *)title {
     [super setTitle:title];
-    if(iOS10Later){
-            _titleLabel.text = title;
-    }else{
-        self.navigationItem.title = title;
-    }
-
+    _titleLabel.text = title;
 }
 
 - (void)createTitleLabel {
-    
-    //Create custom label for titleView
 
-//    _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(20,0, 90, 40)];
-//    _titleLabel.backgroundColor = [UIColor clearColor];
-//    _titleLabel.adjustsFontSizeToFitWidth = YES;
-//    _titleLabel.textColor = COLOR_NAV_TITLE;
-//    _titleLabel.textAlignment = NSTextAlignmentCenter;
-//    _titleLabel.font = [UIFont fontWithName:@"PingFang-SC-Medium" size:18]  != nil ? [UIFont fontWithName:@"PingFang-SC-Medium" size:18] : FONT(18);
-////    _titleLabel.autoresizingMask = (UIViewAutoresizingFlexibleLeftMargin |
-////                                                 UIViewAutoresizingFlexibleRightMargin |
-////                                                 UIViewAutoresizingFlexibleTopMargin |
-////                                                 UIViewAutoresizingFlexibleBottomMargin);
-//#ifdef __IPHONE_11_0
-//    _titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-//#endif
-//    if(iOS10Later){
     self.navigationItem.titleView = self.navTitleView;
     _titleLabel = self.navTitleView.titleLabel;
-    self.navTitleView.intrinsicContentSize = CGSizeMake(ScreenW - 90, 40);
-//    }
 
 }
 -(void)viewWillDisappear:(BOOL)animated{

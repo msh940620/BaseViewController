@@ -64,7 +64,7 @@
 #define MAS_SHORTHAND
 //define this constant if you want to enable auto-boxing for default syntax
 #define MAS_SHORTHAND_GLOBALS
-
+#import <Masonry/Masonry.h>
 #define  adjustsScrollViewInsets_NO(scrollView,vc)\
 do { \
 _Pragma("clang diagnostic push") \

@@ -11,6 +11,4 @@
 
 @property (nonatomic,strong) UILabel *titleLabel;
 
-@property(nonatomic, assign) CGSize intrinsicContentSize;
-
 @end
